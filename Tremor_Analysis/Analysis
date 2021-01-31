@@ -1,0 +1,61 @@
+timeSeriesData = {};
+labels = {};
+keywords = {};
+% the above code intializes the 3 objects needed for using Ts_Init function
+load Diag_ID.mat
+load data_sbj_all.mat
+% Loads the Data
+cnt=0;
+%use count for constructing timeSeriesData,labels and keywords cell array
+
+%{
+   The following lines of for loop, pre-processes the data for Initation.
+We have 24 patients, which each has 3 types of different measurements,
+intention,posutral and rest. 
+My goal here is to assign them patient by patient, which means, let's say
+if the total number measurements across intention,postural and rest is 30
+in patient 1, then I will create 30 rows for patient 1 before proceeding to
+create rows for patient 2.
+For labels, I've used notation as such: P1_I5, P1_P3,P1_R9.
+Which corresponds to: Patient 1, measurement 5 of Intetion,
+Patient 1, Measurement 3 of Postural,
+Patient 1, Measurement 9 of Rest
+%}
+for i = 1:24     % patient 1 - 24
+    cnt_patient1 = size(data_sbj_all{1,i}.intention,2) %number of measurements taken for intention
+    for j = 1:cnt_patient1
+        cnt = cnt+1;      % Total number counter
+        measurements1 = round(size(data_sbj_all{1,i}.intention{1,j}.tremor_raw,1)/2);
+        s_p1 = round(size(data_sbj_all{1,i}.intention{1,j}.tremor_raw,1)/4);
+        e_p1= s_p1 + measurements1;
+        timeSeriesData{cnt} = data_sbj_all{1,i}.intention{1,j}.tremor_raw(s_p1:e_p1);        
+        labels{cnt} = ['P',num2str(i),'_I',num2str(j)];       
+        keywords{cnt} = [Diagnosis(i)];        
+    end
+    
+    cnt_patient2 = size(data_sbj_all{1,i}.postural,2) %number of measurements taken for postural
+    for j = 1:cnt_patient2
+        cnt = cnt+1;      % Total number counter
+        measurements2 = round(size(data_sbj_all{1,i}.postural{1,j}.tremor_raw,1)/2);
+        s_p2 = round(size(data_sbj_all{1,i}.postural{1,j}.tremor_raw,1)/4);
+        e_p2= s_p2 + measurements2;
+        timeSeriesData{cnt} = data_sbj_all{1,i}.postural{1,j}.tremor_raw(s_p2:e_p2);       
+        labels{cnt} = ['P',num2str(i),'_P',num2str(j)];       
+        keywords{cnt} = [Diagnosis(i)];       
+    end
+    
+    cnt_patient3 = size(data_sbj_all{1,i}.rest,2) %number of measurements taken for rest
+    for j = 1:cnt_patient3
+        cnt = cnt+1;      % Total number counter
+        measurements3 = round(size(data_sbj_all{1,i}.rest{1,j}.tremor_raw,1)/2);
+        s_p3 = round(size(data_sbj_all{1,i}.rest{1,j}.tremor_raw,1)/4);
+        e_p3= s_p3 + measurements3;
+        timeSeriesData{cnt} = data_sbj_all{1,i}.rest{1,j}.tremor_raw(s_p3:e_p3);        
+        labels{cnt} = ['P',num2str(i),'_R',num2str(j)];       
+        keywords{cnt} = [Diagnosis(i)];        
+    end
+end
+
+
+
+save('data_for_analysis.mat','timeSeriesData','labels','keywords')
